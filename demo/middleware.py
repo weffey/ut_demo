@@ -7,21 +7,6 @@ import falcon
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-class RequireJSON(object):
-
-    def process_request(self, req, resp):
-        if not req.client_accepts_json:
-            raise falcon.HTTPNotAcceptable(
-                'This API only supports responses encoded as JSON.',
-                href='http://docs.examples.com/api/json')
-
-        if req.method in ('POST', 'PUT'):
-            if 'application/json' not in req.content_type:
-                raise falcon.HTTPUnsupportedMediaType(
-                    'This API only supports requests encoded as JSON.',
-                    href='http://docs.examples.com/api/json')
-
-
 class JSONTranslator(object):
     # NOTE: Starting with Falcon 1.3, you can simply
     # use req.media and resp.media for this instead.
@@ -55,6 +40,20 @@ class JSONTranslator(object):
             return
 
         resp.body = json.dumps(resp.context['result'])
+
+class RequireJSON(object):
+
+    def process_request(self, req, resp):
+        if not req.client_accepts_json:
+            raise falcon.HTTPNotAcceptable(
+                'This API only supports responses encoded as JSON.',
+                href='http://docs.examples.com/api/json')
+
+        if req.method in ('POST', 'PUT'):
+            if 'application/json' not in req.content_type:
+                raise falcon.HTTPUnsupportedMediaType(
+                    'This API only supports requests encoded as JSON.',
+                    href='http://docs.examples.com/api/json')
 
 
 class SqlLiteConnection(object):
