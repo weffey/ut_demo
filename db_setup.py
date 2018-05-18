@@ -1,17 +1,25 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-session = sessionmaker(bind=create_engine('sqlite:///database.db'))()
+from demo.config import CONN_STR
 
-session.execute("DROP TABLE IF EXISTS users;")
-session.execute(
-    """
-    CREATE TABLE users (
-        id VARCHAR(36) NOT NULL PRIMARY KEY,
-        username NVARCAHR(50) NOT NULL,
-        password NVARCAHR(20) NOT NULL
-    );
-    """
-)
-session.commit()
-session.close()
+def set_er_up(conn_str=None):
+    if not conn_str:
+        conn_str = CONN_STR
+    session = sessionmaker(bind=create_engine(conn_str))()
+
+    session.execute("DROP TABLE IF EXISTS users;")
+    session.execute(
+        """
+        CREATE TABLE users (
+            id VARCHAR(36) NOT NULL PRIMARY KEY,
+            username NVARCAHR(50) NOT NULL,
+            password NVARCAHR(20) NOT NULL
+        );
+        """
+    )
+    session.commit()
+    session.close()
+
+if __name__ == '__main__':
+    set_er_up()

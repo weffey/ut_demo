@@ -7,6 +7,8 @@ import falcon
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from demo.config import CONN_STR
+
 class RequireJSON(object):
 
     def process_request(self, req, resp):
@@ -58,9 +60,11 @@ class JSONTranslator(object):
 
 
 class SqlLiteConnection(object):
+    def __init__(self, conn_str, *args, **kwargs):
+        self.conn_str = conn_str
 
     def process_request(self, req, resp):
-        req.session = sessionmaker(bind=create_engine('sqlite:///database.db'))()
+        req.session = sessionmaker(bind=create_engine(self.conn_str))()
 
     def process_response(self, req, resp, resource):
         req.session.commit()

@@ -1,20 +1,20 @@
-import json
-
 import falcon
 
-from auth import RegisterResource
-from middleware import (
+from demo.auth import RegisterResource
+from demo.config import CONN_STR
+from demo.middleware import (
     JSONTranslator,
     RequireJSON,
     SqlLiteConnection,
 )
 
-api = application = falcon.API(middleware=[
-    RequireJSON(),
-    JSONTranslator(),
-    SqlLiteConnection(),
-])
-
+api = application = falcon.API(
+    middleware=[
+        RequireJSON(),
+        JSONTranslator(),
+        SqlLiteConnection(conn_str=CONN_STR),
+    ],
+)
 
 class RootResource(object):
     def on_get(self, req, resp):
