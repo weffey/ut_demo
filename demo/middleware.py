@@ -7,8 +7,6 @@ import falcon
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from demo.config import CONN_STR
-
 class RequireJSON(object):
 
     def process_request(self, req, resp):
