@@ -36,3 +36,12 @@ $ mkvirtualenv ut_demo
 ```bash
 $ curl -v localhost:8000
 ```
+
+-----
+
+# Branches
+
+- `step-0-setup`: App starts, 2 tests pass
+- `step-1-input-validation`: App starts, 2 tests pass, 2 tests fail
+- `step-2-input-sanitization`: App starts, 4 tests pass, 2 tests fail
+- `step-3-logging-in`: App starts, 6 tests pass, 1 test fails
