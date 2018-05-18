@@ -340,3 +340,33 @@ class TestRegisterAPI(MyTestCase):
         self.assertTrue('errors' in result.json)
         self.assertEqual(len(result.json['errors']), 1)
         self.assertEqual(result.json['errors'][0]['field'], 'username')
+
+
+class TestLoginAPI(MyTestCase):
+    def test_login_pass(self):
+        print 'Register a user, then log ing'
+        username = self.generate_username()
+        doc = {
+            "msg": "hello %s!" % username
+        }
+        result = self.simulate_post(
+            '/register',
+            json={
+                "username": username,
+                "password": "password123"
+            }
+        )
+        self.assertEqual(result.status_code, 201)
+        self.assertEqual(result.json, doc)
+        self.check_account_created(username=username)
+
+        result = self.simulate_post(
+            '/login',
+            json={
+                "username": username,
+                "password": "password123"
+            }
+        )
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json['msg'], doc['msg'])
+        self.assertIsNotNone(result.json['id'])

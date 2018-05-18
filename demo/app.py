@@ -1,7 +1,10 @@
 import logging
 import falcon
 
-from demo.auth import RegisterResource
+from demo.auth import (
+    LoginResource,
+    RegisterResource,
+)
 from demo.config import CONN_STR
 from demo.exceptions import ValidationError
 from demo.middleware import (
@@ -49,4 +52,5 @@ class RootResource(object):
         resp.content_type = falcon.MEDIA_JSON
 
 api.add_route('/', RootResource())
+# api.add_route('/login', LoginResource())
 api.add_route('/register', RegisterResource())
