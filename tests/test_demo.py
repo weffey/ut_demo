@@ -1,3 +1,5 @@
+import random
+import string
 import time
 
 from falcon import testing
@@ -44,7 +46,7 @@ class MyTestCase(testing.TestCase):
         """
         Helper method to generate a unique username
         """
-        return "weffey-{ticks}".format(ticks=time.time())
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(18))
 
 
 class TestRootAPI(MyTestCase):
@@ -63,12 +65,11 @@ class TestRegisterAPI(MyTestCase):
         doc = {
             "msg": "hello %s!" % username
         }
-
         result = self.simulate_post(
             '/register',
             json={
                 "username": username,
-                "password": "password"
+                "password": "password123"
             }
         )
         self.assertEqual(result.json, doc)
@@ -151,12 +152,13 @@ class TestRegisterAPI(MyTestCase):
         self.assertEqual(result.json['errors'][0]['field'], 'password')
         self.check_account_created(username=username, exprects_success=False)
 
+
     def test_register_missing_username(self):
         print 'Do not send field at all'
         result = self.simulate_post(
             '/register',
             json={
-                "password": "password"
+                "password": "password1234"
             }
         )
         self.assertEqual(result.status_code, 400)
@@ -165,12 +167,11 @@ class TestRegisterAPI(MyTestCase):
         self.assertEqual(result.json['errors'][0]['field'], 'username')
 
         print 'Send null value'
-        username = self.generate_username()
         result = self.simulate_post(
             '/register',
             json={
                 "username": None,
-                "password": "password"
+                "password": "password1234"
             }
         )
         self.assertEqual(result.status_code, 400)
@@ -179,12 +180,11 @@ class TestRegisterAPI(MyTestCase):
         self.assertEqual(result.json['errors'][0]['field'], 'username')
 
         print 'Send whitespace string'
-        username = self.generate_username()
         result = self.simulate_post(
             '/register',
             json={
                 "username": "         ",
-                "password": "password"
+                "password": "password1234"
             }
         )
         self.assertEqual(result.status_code, 400)
@@ -193,12 +193,147 @@ class TestRegisterAPI(MyTestCase):
         self.assertEqual(result.json['errors'][0]['field'], 'username')
 
         print 'Send whitespace string -- all tabs'
-        username = self.generate_username()
         result = self.simulate_post(
             '/register',
             json={
                 "username": "\t\t\t",
-                "password": "password"
+                "password": "password1234"
+            }
+        )
+        self.assertEqual(result.status_code, 400)
+        self.assertTrue('errors' in result.json)
+        self.assertEqual(len(result.json['errors']), 1)
+        self.assertEqual(result.json['errors'][0]['field'], 'username')
+
+
+    def test_register_password_validation(self):
+        print 'Business rule: passwords must be at least 10 characters long'
+        password = "1234567890"
+        self.assertEqual(len(password), 10)
+        username = self.generate_username()
+        doc = {
+            "msg": "hello %s!" % username
+        }
+        result = self.simulate_post(
+            '/register',
+            json={
+                "username": username,
+                "password": password
+            }
+        )
+        self.assertEqual(result.json, doc)
+        self.assertEqual(result.status_code, 201)
+        self.check_account_created(username=username)
+
+        print 'Business rule: passwords must be at least 10 characters long'
+        password = "12345"
+        self.assertLess(len(password), 10)
+        username = self.generate_username()
+        result = self.simulate_post(
+            '/register',
+            json={
+                "username": username,
+                "password": password
+            }
+        )
+        self.assertEqual(result.status_code, 400)
+        self.assertTrue('errors' in result.json)
+        self.assertEqual(len(result.json['errors']), 1)
+        self.assertEqual(result.json['errors'][0]['field'], 'password')
+
+        print 'Business rule: passwords must be 20 or less characters long'
+        password = "12345678901234567890"
+        self.assertEqual(len(password), 20)
+        username = self.generate_username()
+        doc = {
+            "msg": "hello %s!" % username
+        }
+        result = self.simulate_post(
+            '/register',
+            json={
+                "username": username,
+                "password": password
+            }
+        )
+        self.assertEqual(result.json, doc)
+        self.assertEqual(result.status_code, 201)
+        self.check_account_created(username=username)
+
+        print 'Business rule: passwords must be 20 or less characters long'
+        password = "1234567890123456789012345"
+        self.assertGreater(len(password), 20)
+        username = self.generate_username()
+        result = self.simulate_post(
+            '/register',
+            json={
+                "username": username,
+                "password": password
+            }
+        )
+        self.assertEqual(result.status_code, 400)
+        self.assertTrue('errors' in result.json)
+        self.assertEqual(len(result.json['errors']), 1)
+        self.assertEqual(result.json['errors'][0]['field'], 'password')
+
+
+    def test_register_username_validation(self):
+        print 'Business rule: usernames must be at least 3 characters long'
+        username = "123"
+        self.assertEqual(len(username), 3)
+        doc = {
+            "msg": "hello %s!" % username
+        }
+        result = self.simulate_post(
+            '/register',
+            json={
+                "username": username,
+                "password": "password1234"
+            }
+        )
+        self.assertEqual(result.json, doc)
+        self.assertEqual(result.status_code, 201)
+        self.check_account_created(username=username)
+
+        print 'Business rule: usernames must be at least 3 characters long'
+        username = "12"
+        self.assertLess(len(username), 3)
+        result = self.simulate_post(
+            '/register',
+            json={
+                "username": username,
+                "password": "password1234"
+            }
+        )
+        self.assertEqual(result.status_code, 400)
+        self.assertTrue('errors' in result.json)
+        self.assertEqual(len(result.json['errors']), 1)
+        self.assertEqual(result.json['errors'][0]['field'], 'username')
+
+        print 'Business rule: usernames must be 50 or less characters long'
+        username = "12345678901234567890123456789012345678901234567890"
+        self.assertEqual(len(username), 50)
+        doc = {
+            "msg": "hello %s!" % username
+        }
+        result = self.simulate_post(
+            '/register',
+            json={
+                "username": username,
+                "password": "password1234"
+            }
+        )
+        self.assertEqual(result.json, doc)
+        self.assertEqual(result.status_code, 201)
+        self.check_account_created(username=username)
+
+        print 'Business rule: usernames must be 50 or less characters long'
+        username = "12345678901234567890123456789012345678901234567890112345"
+        self.assertGreater(len(username), 50)
+        result = self.simulate_post(
+            '/register',
+            json={
+                "username": username,
+                "password": "password1234"
             }
         )
         self.assertEqual(result.status_code, 400)

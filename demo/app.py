@@ -24,6 +24,7 @@ def internal_error_handler(e, req, resp, params):
             "errors": e.errors,
         }
         resp.content_type = falcon.MEDIA_JSON
+        logging.info('validation failed: %s --> %s', req.url, e.errors)
         return
     logging.exception(e)
     raise e
