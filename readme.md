@@ -1,6 +1,11 @@
 # Setup
 
-Reference: [Get started with a Virtual Environment](https://virtualenvwrapper.readthedocs.io/en/latest/)
+Assumes you have the following installed: 
+
+- Python 2.7x
+- Get started with a [Virtual Environment](https://virtualenvwrapper.readthedocs.io/en/latest/)
+- [SQLite](https://www.sqlite.org/download.html)
+
 
 1. Create a virtual environment called `ut_demo`
 ```bash
@@ -35,6 +40,11 @@ $ mkvirtualenv ut_demo
 7. Confirm the Falcon app comes up
 ```bash
 $ curl -v localhost:8000
+```
+
+8. Run the tests
+```bash
+nosetests
 ```
 
 -----
