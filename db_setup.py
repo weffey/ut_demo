@@ -13,8 +13,8 @@ def set_er_up(conn_str=None):
         """
         CREATE TABLE users (
             id VARCHAR(36) NOT NULL PRIMARY KEY,
-            username NVARCAHR(50) NOT NULL,
-            password NVARCAHR(20) NOT NULL
+            username NVARCHAR(50) NOT NULL,
+            password NVARCHAR(20) NOT NULL
         );
         """
     )
